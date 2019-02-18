@@ -144,7 +144,9 @@ import axios from 'axios'
 import jsonp from 'axios-jsonp'
 import VueAxios from 'vue-axios'
 
-import firebase from 'firebase'
+import firebase from 'firebase/app'
+import 'firebase/database'
+import 'firebase/auth'
 
 import selectInput from '../components/selectInput'
 

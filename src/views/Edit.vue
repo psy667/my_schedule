@@ -1,7 +1,20 @@
 <template lang="html">
   <div class="container bg-primary">
 
-    <button class='btn col-12 btn-lg btn-success' @click='save()'>Сохранить<i class='icon icon-upload ml-2'></i></button>
+    <button class='btn col-12 btn-lg btn-success mt-2' @click='save()'>Сохранить<i class='icon icon-upload ml-2'></i></button>
+
+    <button class='btn btn-primary col-12 mt-2' @click='showTimers = !showTimers'>{{ showTimers ? 'Скрыть расписание звонков' : 'Показать расписание звонков'}}</button>
+
+    <div class='timers columns  mb-2' v-if='showTimers'>
+      <div class='col-6'>Длительность пары в минутах</div><input class='col-6' v-model.number='timers[1].duration'>
+      <span class='col-2'>Номер пары</span><span class='col-4'>Начало(часы)</span><span class='col-5'>Начало(минуты)</span>
+      <div class='columns col-12 ml-2 pt-1' v-for='(item, i) in timers[1]' v-if='i != "duration"'>
+        <span class='col-1  form-label'>{{ i }} </span>
+        <input class='col-5 mr-2  form-input' v-model.number='item[0]' type='number'>
+        <input class='col-5  form-input' v-model.number='item[1]' type='number'>
+      </div>
+    </div>
+
     <div class="subjects">
       <div class="form-group columns mx-2 pt-0">
         <label class="form-label col-12" for="subjects">Добавление нового предмета</label>
@@ -22,11 +35,11 @@
       </div>
     </div>
 
-    <div class="wrapper mt-2"  >
+    <div class="wrapper mt-2 swiper-container"  >
       <button id='prevButton' class='slide-buttons slide-left'></button>
-      <div class="my-slider" id='blocks' v-show='loaded'>
+      <div class="my-slider swiper-wrapper" id='blocks' v-show='loaded'>
 
-        <div v-for='day in daysOfWeek' class="block tns-item"  :id="day">
+        <div v-for='day in daysOfWeek' class="block  swiper-slide"  :id="day">
           <h1>{{ daysOfWeekRU[day] }}</h1>
           <ol>
             <li class='mt-0' v-for='(item,i) in schedule[day]' v-if=''>
@@ -47,6 +60,11 @@
                 <dropdown class="col-6 my-1"  data-type="class" :list='types'
                 @custom="item.type= $event.id">{{ types[item.type].title === null ? "Выберите тип пары" :  types[item.type].title }}</dropdown>
 
+                <checkBoxDropdown class="col-6 my-1"  data-type="class" :list='subgroups'  :values='item.subgroups'
+                @custom="item.subgroups = $event">Выберите подгруппы</checkBoxDropdown>
+
+                <checkBoxDropdown class="col-6 my-1"  data-type="class" :list='[...weeks]' :values='item.parity'
+                @custom="item.parity = $event">Четности</checkBoxDropdown>
                 <!-- <dropdown  data-type="class" :list='[{id:0,title:"Числитель"},{id:1,title:"Знаменатель"}]'
                 @custom="item.= $event.id">{{ subjects[item.class].title === null ? "Выберите предмет" :  subjects[item.class].title }}</dropdown>
 
@@ -83,10 +101,14 @@
 </template>
 
 <script>
-import { tns } from 'tiny-slider'
+
 import Vue from 'vue'
-import firebase from 'firebase'
+import firebase from 'firebase/app'
+import Swiper from 'swiper'
+import 'firebase/database'
+import 'firebase/auth'
 import dropdown from '../components/dropdown'
+import checkBoxDropdown from '../components/checkBoxDropdown'
 
 let config = {
   apiKey: 'AIzaSyA6hIR7mCJwccJ6ndZZluTxo4WQi5olfkw',
@@ -105,12 +127,12 @@ export default {
   data () {
     return {
       loaded: false, // индикатор загрузки
-      weeks: ['Числитель', 'Знаменатель'], // Четности недель в дропдауне
+      weeks: [{ title: 'Числитель', id: 0 }, { title: 'Знаменатель', id: 1 }], // Четности недель в дропдауне
       schedule: {}, // объект с расписанием
       timers: {}, // объект с расписанием звонков
       subgroups: {}, // список подгрупп
       title: '', // название расписания
-      subjects: {}, // список предметов
+      subjects: [{ id: 0, title: 'Первая подгруппа' }], // список предметов
       types: [{ id: 0, title: 'Лекция' }, { id: 1, title: 'Практика' }, { id: 2, title: 'Лабораторные раб.' }], // список типов пар
       subject: '', // название, при добавлении нового предмета
       subgroup: '', // название, при добавлении новой подгруппы
@@ -121,7 +143,8 @@ export default {
         'thursday': 'Четверг',
         'friday': 'Пятница',
         'saturday': 'Суббота',
-        'sunday': 'Воскресенье' } // локализация дней недели
+        'sunday': 'Воскресенье' },
+      showTimers: false // локализация дней недели
     }
   },
   methods: {
@@ -183,6 +206,7 @@ export default {
 
       firebase.auth().onAuthStateChanged(function (user) {
         // console.log(user);
+        console.log(context.schedule, context.subjects, context.subgroups)
         if (user) {
           userID = user.uid
 
@@ -193,7 +217,7 @@ export default {
             console.log('Error: ' + error.code)
           })
           if (userID === creatorID) {
-            ref.update({ schedule: context.schedule, subjects: context.subjects, subgroups: context.subgroups })
+            ref.update({ schedule: context.schedule, subjects: context.subjects, subgroups: context.subgroups, timers: context.timers })
             console.log('Сохранено')
           };
         }
@@ -209,20 +233,19 @@ export default {
 
   },
   mounted () {
-    let slider = tns({
-      'container': '#blocks',
-      'items': 1,
-      'center': true,
-      'loop': false,
-      'swipeAngle': false,
-      'speed': 400,
-      'controls': true,
-      'prevButton': '#prevButton',
-      'nextButton': '#nextButton',
-      'nav': false,
-      'gutter': 16,
-      'arrowKeys': true
-    })
+    const params = {
+      speed: 400,
+      spaceBetween: 20,
+      // direction: 'vertical',
+      navigation: {
+        nextEl: '#nextButton',
+        prevEl: '#prevButton'
+      },
+      fadeEffect: {
+        crossFade: true
+      }
+    }
+    new Swiper('.swiper-container', params)
 
     let id = this.$route.query.id
     let query = `schedules/${id}`
@@ -249,7 +272,8 @@ export default {
     )
   },
   components: {
-    dropdown
+    dropdown,
+    checkBoxDropdown
   }
 }
 </script>
@@ -268,7 +292,7 @@ export default {
 
     height: 100%;
     margin-top: -30px;
-    height: calc(100vh - 52px);
+    // height: calc(100vh - 52px);
     // background: linear-gradient(0deg, #4F00BC -50%, #29ABE2 100%, );
 
   }
@@ -314,11 +338,9 @@ export default {
     // background: #f44;
     // height: 400px;
     // margin: 10px;
-    opacity: 0.5;
+    // opacity: 0.5;
     transition: 0.3s;
-  }
-  .tns-slide-active{
-    opacity: 1;
+    min-width: 100%;
   }
 
   .block {

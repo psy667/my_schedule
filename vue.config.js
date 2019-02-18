@@ -1,6 +1,7 @@
 module.exports = {
   pwa: {
-    name: 'Schedule',
-    themeColor: '#9013FE'
+    name: 'My Schedule',
+    themeColor: '#5755D9',
+    msTileColor: '#FFFFFF'
   }
 }

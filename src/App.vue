@@ -1,24 +1,24 @@
 <template>
   <div id="app">
 
+    <router-view/>
     <div id="menu" class="bg-primary">
-      <button @click='navShow = !navShow' class="btn btn-lg btn-action btn-primary" ><i class="icon" :class='button'></i></button>
-      <div class="name" @click='navShow = false'>
+      <!-- <button @click='navShow = !navShow' class="btn btn-lg btn-action btn-primary" ><i class="icon" :class='button'></i></button> -->
+      <!-- <div class="name" @click='navShow = false'>
 
         <router-link class='text-light' :to="href">{{ user.name }}</router-link>
         <figure class="avatar avatar-sm">
           <img :src="user.photo">
         </figure>
-      </div>
-      <ul v-show='navShow' @click='navShow = !navShow' class='nav'>
-        <li class='nav-item'><router-link to="/" >Главная</router-link></li>
-        <li class='nav-item'><router-link to="/search">Поиск</router-link></li>
-        <li class='nav-item'><router-link to="/add">Добавить расписание</router-link></li>
-        <li class='nav-item'><router-link to="/account">Мои расписания</router-link></li>
-        <li class='nav-item bottom'><router-link to="/author">Авторы</router-link></li>
+      </div> -->
+      <ul click='navShow = !navShow' class='nav'>
+        <li class='nav-item'><router-link to="/search"><i class="icon icon-search"></i></router-link></li>
+        <li class='nav-item'><router-link to="/add"><i class="icon icon-plus"></i></router-link></li>
+        <li class='nav-item'><router-link to="/" ><i class="icon icon-menu"></i></router-link></li>
+        <li class='nav-item'><router-link to="/author"><i class="icon icon-link"></i></router-link></li>
+        <li class='nav-item'><router-link to="/account"><i class="icon icon-people"></i></router-link></li>
       </ul>
     </div>
-    <router-view/>
   </div>
 </template>
 <script>
@@ -59,11 +59,11 @@ export default {
 }
 </script>
 <style lang="scss">
-body{
-  background: #333 !important;
-}
+
 .container{
-    padding: 0 1rem !important;
+    min-height: 100vh;
+    padding: 30px 1rem !important;
+    // padding-top: 50px;
 }
 #app {
   // font-family: 'Avenir', Helvetica, Arial, sans-serif;
@@ -74,12 +74,19 @@ body{
   max-width: 500px;
   margin: auto;
   background: #fff;
-  min-height: 100vh;
+  // min-height: 100vh;
+  max-height: 100vh;
 }
 #menu {
   width: 100%;
-  position: relative;
-  margin-bottom: 30px;
+  max-width: 500px;
+  position: fixed;
+  height: 50px;
+  bottom: 0px;
+  z-index: 30;
+  padding: 0;
+  border-top: 1px solid #cbd0d9;
+  // top: 90vh;
   button{
     margin: 6px;
   }
@@ -94,28 +101,43 @@ body{
   }
   ul.nav{
     width: 100%;
-    height: calc(100vh - 52px);
+    height: 50px;
     margin: 0;
     background-color: #fff;
-    padding-top: 10px;
+    padding-top: 1px;
     position: absolute;
-    z-index: 10;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    // flex-wrap: nowrap;
     li{
-      &.bottom{
-        width: 100%;
-        position: absolute;
-        bottom: 50px;
-        a{
-          text-align: center;
-          margin-left: 0;
-        }
-      }
+      // width: 50px;
+      width: 100%;
+      display: flex;
+      margin: 0px;
     a{
       display: block;
       width: 100%;
-      margin-left: 20px;
+
+      padding-top: 10px;
       &.router-link-exact-active{
         font-weight: bold;
+      }
+      i{
+        display: block;
+        margin: auto;
+        transform: scale(1.2);
+        margin-top: 6px;
+      }
+      .icon-plus, .icon-menu{
+        &::before, &::after{
+          border-radius: 3px;
+        }
+      }
+      .icon-search {
+        &::after{
+          border-radius: 3px;
+        }
       }
     }
     }

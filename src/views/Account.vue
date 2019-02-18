@@ -6,9 +6,9 @@
       <div class="panel-header text-center">
         <figure class="avatar avatar-lg"><img :src="user.photo" alt="Avatar"></figure>
         <div class="panel-title h5 mt-10">{{ user.name }}</div>
-        <button class='btn logout' @click='logout()'>Выйти</button>
         <!-- <div class="panel-subtitle">THE HULK</div> -->
       </div>
+      <button class='btn logout m-2' @click='logout()'>Выйти</button>
       <div class="panel-body" >
       <h5 >Список моих расписаний ({{ items.length }})</h5>
         <div class="loading loading-lg" v-if='!loaded'></div>
@@ -16,13 +16,14 @@
 
           <div class="tile-content">
             <div class="tile-title text-bold"><router-link :to="{ name: 'schedule', query: {id: item.href} }" > {{ item.name }} </router-link> </div>
-            <div class="tile-subtitle">{{ item.date }}</div>
+            <div class="tile-subtitle">{{ new Date(item.date).toLocaleDateString() }}</div>
           </div>
           <div class="tile-action">
             <router-link class="btn btn-link btn-action btn-lg tooltip tooltip-left"
                           data-tooltip="Редактировать" :to="{ name: 'edit', query: {id: item.href} }" >
               <i class="icon icon-edit"></i>
             </router-link>
+            <button class='btn mr-1' :class='{active: $store.state.default === item.href}' @click='makeDefault(item.href)'><i class="icon icon-bookmark"></i></button>
             <button class='btn ' @click='del(item.href)'><i class="icon icon-delete"></i></button>
           </div>
 
@@ -48,7 +49,9 @@
 
 <script>
 
-import firebase from 'firebase'
+import firebase from 'firebase/app'
+import 'firebase/database'
+import 'firebase/auth'
 
 let config = {
   apiKey: 'AIzaSyA6hIR7mCJwccJ6ndZZluTxo4WQi5olfkw',
@@ -84,6 +87,13 @@ export default {
     confirmDel () {
       this.ref.remove()
       this.modal = false
+    },
+    makeDefault (href) {
+      if (this.$store.state.default == href) {
+        this.$store.commit('SETDEFAULT', false)
+      } else {
+        this.$store.commit('SETDEFAULT', href)
+      }
     }
   },
   computed: {

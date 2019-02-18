@@ -112,6 +112,9 @@
 
     <button class="btn btn-primary search" @click='add()' :disabled='!nameValid'>Создать</button>
     <!-- <pre>{{ vkapi }}</pre> -->
+    <div class="toast toast-error mt-2" v-if="itemsCount >= 5">
+      У вас имеется максимально возможное количество расписаний.
+    </div>
   </div>
 </template>
 
@@ -121,7 +124,9 @@ import axios from 'axios'
 import jsonp from 'axios-jsonp'
 import VueAxios from 'vue-axios'
 
-import firebase from 'firebase'
+import firebase from 'firebase/app'
+import 'firebase/database'
+import 'firebase/auth'
 
 let config = {
   apiKey: 'AIzaSyA6hIR7mCJwccJ6ndZZluTxo4WQi5olfkw',
@@ -201,12 +206,16 @@ export default {
         type: 0,
         room: '',
         parity: [0, 1],
-        subgroups: [0]
-      }]
+        subgroups: [0, 1]
+      }],
+      itemsCount: 0
     }
   },
   methods: {
     add () {
+      if (this.itemsCount >= 5) {
+        return 0
+      };
       let context = this
       let query
       let info
@@ -250,8 +259,9 @@ export default {
             '2': [10, 10],
             '3': [12, 0],
             '4': [14, 0],
-            '5': [15, 20],
-            '6': [8, 30]
+            '5': [15, 50],
+            '6': [17, 30],
+            '7': [19, 10]
           }
 
         },
@@ -353,7 +363,23 @@ export default {
   mounted () {
     if (!this.$store.state.logged) {
       this.$router.push('login')
-    }
+    };
+
+    const context = this
+    let response
+    let ref = firebase.database().ref('/schedules').orderByChild('creator').equalTo(this.$store.state.user.uid)
+
+    ref.on('value', function (snapshot) {
+      response = snapshot.val()
+      console.log(response)
+      context.itemsCount = 0
+      // , chair : response[item].chair
+      Object.keys(response).forEach((item) => context.itemsCount++)
+
+      context.loaded = true
+    }, function (error) {
+      console.log('Error: ' + error.code)
+    })
   }
 }
 </script>

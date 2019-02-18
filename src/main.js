@@ -6,14 +6,10 @@ import './registerServiceWorker'
 import 'spectre.css'
 import 'spectre.css/dist/spectre-icons.min.css'
 
-import vSelect from 'vue-select'
-// import firebase from 'firebase'
-
-Vue.config.productionTip = false
+Vue.config.productionTip = true
 
 new Vue({
   router,
   store,
   render: h => h(App)
 }).$mount('#app')
-Vue.component('v-select', vSelect)

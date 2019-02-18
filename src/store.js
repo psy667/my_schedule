@@ -7,7 +7,9 @@ Vue.use(Vuex)
 export default new Vuex.Store({
   state: {
     logged: false,
-    user: {}
+    user: {},
+    default: false,
+    subgroup: false
   },
   getters: {},
   mutations: {
@@ -18,17 +20,16 @@ export default new Vuex.Store({
     LOGOUT: (state) => {
       state.logged = false
       state.user = {}
+    },
+    SETDEFAULT: (state, payload) => {
+      state.default = payload
+    },
+    SETSUBGROUP: (state, payload) => {
+      state.subgroup = payload
     }
   },
   actions: {
-    getData (context) {
-      let url = 'http://demo4779301.mockable.io/db2'
 
-      fetch(url).then(response => response.json()).then(data => {
-        context.commit('getData', data)
-        context.commit('filterOut')
-      })
-    }
   },
   plugins: [createPersistedState()]
 })
