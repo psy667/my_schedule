@@ -14,7 +14,7 @@
 importScripts("https://storage.googleapis.com/workbox-cdn/releases/3.6.3/workbox-sw.js");
 
 importScripts(
-  "/precache-manifest.1f0cb6a011c005dacc1a7097184fc4b6.js"
+  "/precache-manifest.d5eba128b5464fc376cecf165025fd5a.js"
 );
 
 workbox.core.setCacheNameDetails({prefix: "MySchedule"});

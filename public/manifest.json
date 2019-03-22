@@ -1,10 +1,10 @@
 {
-  "name": "schedule",
-  "short_name": "schedule",
+  "name": "My Schedule",
+  "short_name": "My Schedule",
   "icons": [
     {
-      "src": "./img/icons/android-chrome-192x192.png",
-      "sizes": "192x192",
+      "src": "./img/icons/android-chrome-256x256.png",
+      "sizes": "256x256",
       "type": "image/png"
     },
     {
@@ -13,8 +13,8 @@
       "type": "image/png"
     }
   ],
-  "start_url": "./index.html",
+  "start_url": "./",
   "display": "standalone",
-  "background_color": "#FFFFFF",
-  "theme_color": "#4DBA87"
+  "background_color": "#1b1b1b",
+  "theme_color": "#5654d9"
 }
